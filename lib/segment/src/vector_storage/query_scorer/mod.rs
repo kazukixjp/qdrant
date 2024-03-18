@@ -1,6 +1,6 @@
 use common::types::{PointOffsetType, ScoreType};
 
-use crate::data_types::vectors::MultiVector;
+use crate::data_types::vectors::MultiDenseVector;
 use crate::spaces::metric::Metric;
 
 pub mod custom_query_scorer;
@@ -17,7 +17,7 @@ pub trait QueryScorer<TVector: ?Sized> {
     fn score_internal(&self, point_a: PointOffsetType, point_b: PointOffsetType) -> ScoreType;
 }
 
-pub fn score_multivector<TMetric: Metric>(a: &MultiVector, b: &MultiVector) -> ScoreType {
+pub fn score_multi<TMetric: Metric>(a: &MultiDenseVector, b: &MultiDenseVector) -> ScoreType {
     let mut sum = 0.0;
     for a in a.iter() {
         sum += b

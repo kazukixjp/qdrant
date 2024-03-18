@@ -2,8 +2,8 @@ use std::marker::PhantomData;
 
 use common::types::{PointOffsetType, ScoreType};
 
-use super::score_multivector;
-use crate::data_types::vectors::MultiVector;
+use super::score_multi;
+use crate::data_types::vectors::MultiDenseVector;
 use crate::spaces::metric::Metric;
 use crate::vector_storage::query::{Query, TransformInto};
 use crate::vector_storage::query_scorer::QueryScorer;
@@ -13,7 +13,7 @@ pub struct CustomQueryScorer<
     'a,
     TMetric: Metric,
     TVectorStorage: MultiVectorStorage,
-    TQuery: Query<MultiVector>,
+    TQuery: Query<MultiDenseVector>,
 > {
     vector_storage: &'a TVectorStorage,
     query: TQuery,
@@ -24,7 +24,7 @@ impl<
         'a,
         TMetric: Metric,
         TVectorStorage: MultiVectorStorage,
-        TQuery: Query<MultiVector> + TransformInto<TQuery>,
+        TQuery: Query<MultiDenseVector> + TransformInto<TQuery>,
     > CustomQueryScorer<'a, TMetric, TVectorStorage, TQuery>
 {
     #[allow(dead_code)]
@@ -41,8 +41,8 @@ impl<
     }
 }
 
-impl<'a, TMetric: Metric, TVectorStorage: MultiVectorStorage, TQuery: Query<MultiVector>>
-    QueryScorer<MultiVector> for CustomQueryScorer<'a, TMetric, TVectorStorage, TQuery>
+impl<'a, TMetric: Metric, TVectorStorage: MultiVectorStorage, TQuery: Query<MultiDenseVector>>
+    QueryScorer<MultiDenseVector> for CustomQueryScorer<'a, TMetric, TVectorStorage, TQuery>
 {
     #[inline]
     fn score_stored(&self, idx: PointOffsetType) -> ScoreType {
@@ -51,9 +51,9 @@ impl<'a, TMetric: Metric, TVectorStorage: MultiVectorStorage, TQuery: Query<Mult
     }
 
     #[inline]
-    fn score(&self, against: &MultiVector) -> ScoreType {
+    fn score(&self, against: &MultiDenseVector) -> ScoreType {
         self.query
-            .score_by(|example| score_multivector::<TMetric>(example, against))
+            .score_by(|example| score_multi::<TMetric>(example, against))
     }
 
     fn score_internal(&self, _point_a: PointOffsetType, _point_b: PointOffsetType) -> ScoreType {
